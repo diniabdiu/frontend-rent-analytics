@@ -1,23 +1,17 @@
+import { QueryClient, QueryClientProvider } from 'react-query';
 
+// Pages
+import RentPage from "pages/RentPage";
 
-function App() {
+const App = () => {
+
+  // Declarations
+  const queryClient = new QueryClient();
+
   return (
-    <div >
-      <header >
-      
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-         
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <QueryClientProvider client={queryClient} >
+      <RentPage />          
+    </QueryClientProvider>
   );
 }
 
