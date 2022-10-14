@@ -5,3 +5,5 @@ export interface RentType {
     effectiveRent: number;
     startingRent: number;
 }
+
+export type CreateRentType = Omit<RentType, 'id'>

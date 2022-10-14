@@ -1,5 +1,5 @@
-import {  ElementRef, useRef } from "react";
-import { useQuery } from "react-query";
+import {  ElementRef, useRef, useState } from "react";
+import { useMutation, useQuery } from "react-query";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
@@ -23,23 +23,46 @@ const RentPage = () => {
     type ModalHandler = ElementRef<typeof Modal>;
     const formRentRef = useRef<ModalHandler>(null);
 
+    // State
+    const [idOfRent, setIdOfRent] = useState('')
+
     // Queries
     const {
         isLoading: isGettingRents,
         error: getRentsError,
         data: rentsData,
+        refetch: refreshRents
     } = useQuery<RentType[]>('getRents', () => rentsServices.getAllRents());
 
-    if(getRentsError) throw new Error('Error getting Rents')
+    const {
+        mutate: deleteRent,
+        isLoading: isDeletingRent,
+        error: deleteRentError,
+      } = useMutation('deleteRent', (id: string) => rentsServices.deleteRent(id), {
+        onSuccess: (user) => {
+            refreshRents()
+        },
+      });
 
+      
+      
+      
+    const handleGetRentId=(id: string)=> {
+        setIdOfRent(id)
+        deleteRent(id)
+        formRentRef.current?.show()
+    }
+        
+    if(getRentsError) throw new Error('Error getting Rents')
+    if(deleteRentError) throw new Error('Error deleting Rent')
 
   return (
     <div className="relative w-fit text-black">
-        <AbsoluteSpinner show={isGettingRents} />   
+        <AbsoluteSpinner show={isGettingRents || isDeletingRent}  />   
 
         {/* Create Rent  */}
-        <Modal  ref={formRentRef} title="Createee">
-            <RentForm />
+        <Modal  ref={formRentRef} title="Create">
+            <RentForm idOfRent={idOfRent} />
         </Modal>
         
         {/* WIDGET CHARTS */}
@@ -57,9 +80,9 @@ const RentPage = () => {
                     </span>
                 </div>
             </div>
-            <div className="flex gap-5 h-80 overflow-x-auto touch-pan-x">            
+            <div className="flex gap-5 h-80 max-w-[700px] overflow-x-auto touch-pan-x">            
                 {rentsData?.map((item: RentType) => {
-                    return  <ChartBar key={item.id} title={item.id} firstValue={item.startingRent} secondValue={item.effectiveRent} />
+                    return  <ChartBar handleGetId={handleGetRentId} key={item.id} title={item.id} firstValue={item.startingRent} secondValue={item.effectiveRent} />
                 })}                
             </div>
             <div className="flex items-center gap-1 pt-2">

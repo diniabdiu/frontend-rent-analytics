@@ -1,27 +1,55 @@
 import { ReactElement } from "react";
+import { useMutation, useQueryClient } from "react-query";
 
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+// Services
+import rentsServices from "services/rent.service";
 
 // Types
 import { CreateRentType, RentType } from "common/types/Rent.type";
+import { AbsoluteSpinner } from "common/components/Spinners";
 
 // Schema definition
 const schema = yup.object().shape({
     year: yup
       .number()
       .positive()
+      .required()
       .min(1970, 'Minimum year is 1970!')
       .max(new Date().getFullYear(), `Maximum year is ${new Date().getFullYear()}!`),
-    startingRent: yup.number().positive('Starting rent must be positive!').max(99),
+    startingRent: yup.number().required().positive('Starting rent must be positive!').max(99),
     effectiveRent: yup
-      .number().positive('Effective rent must be positive!').max(99) 
+      .number().required().positive('Effective rent must be positive!').max(99) 
 });
 
-const CreateRent = (): ReactElement => {
+interface Props {
+  idOfRent: string;
+}
+const CreateRent = (idOfRent:Props): ReactElement => {
+
+
+    const queryClient = useQueryClient()
+
+    console.log('RENT FORM ID +>>>>',idOfRent)
+
+    const {
+        mutate: createRent,
+        isLoading: isCreatingRent,
+        error: createRentError,
+      } = useMutation(
+        'createRent',
+        (rent : CreateRentType) => rentsServices.createRent(rent),
+        {
+          onSuccess: (rent) => {
+            console.log('here is rent', rent)
+          }
+        }
    
+      );
+
 
   // Form
   const {
@@ -31,14 +59,18 @@ const CreateRent = (): ReactElement => {
     formState: { errors, isDirty },
   } = useForm<RentType>({
     resolver: yupResolver(schema),
+    defaultValues: {  },
   });
 
   const handleOnSubmit = async (rent :CreateRentType) => {
-    console.log('DATA from form',rent)     
+    console.log('DATA from form',rent)
+      await createRent(rent)
   }
 
+  if(createRentError) throw new Error('Error creating Rent')
 
   return (<form onSubmit={handleSubmit(handleOnSubmit)}>
+            <AbsoluteSpinner show={isCreatingRent}/>
             <div>
                 <label htmlFor="year">
                     Year:

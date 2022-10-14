@@ -3,11 +3,13 @@ interface ChatBarProp {
   firstValue: number;
   secondValue: number;
   title: string;
+  handleGetId: (id: string) => void
 }
 
-const ChartBar = ({ firstValue, secondValue, title }: ChatBarProp) => {
+const ChartBar = ({ firstValue, secondValue, title, handleGetId }: ChatBarProp) => {
+  
   return (
-    <span className=" flex-1 justify-end h-full min-w-[10px] max-w-[15px] gap-2 flex-col flex text-center">
+    <span onClick={() => handleGetId(title)} className=" flex-1 justify-end h-full min-w-[10px] max-w-[15px] gap-2 flex-col flex text-center">
       <div className="h-full flex justify-end items-end relative">
         <span
           className="cursor-pointer absolute bottom-0 left-0 rounded-2xl transition-all duration-300 w-[90%] max-h-full overflow-hidden"

@@ -2,17 +2,29 @@
 import BaseService from './base.service';
 
 // Types
-import { RentType } from 'common/types/Rent.type';
+import { RentType,CreateRentType} from 'common/types/Rent.type';
 
 class RentServices extends BaseService {
-  async get(): Promise<RentType[]> {
-    const res = await this.axios.get('/');
+  async getAllRents(): Promise<RentType[]> {
+    const res = await this.axios.get('');
+    return res.data
+  }
+  async createRent(rent: CreateRentType): Promise<RentType>{
+    const res = await this.axios.post('', rent);
+    return res.data
+  }
+  async updateRent(id: string){
+    const res = await this.axios.patch('', id);
+    return res.data
+  }
+  async deleteRent(id: string){
+    const res = await this.axios.delete('', );
     return res.data
   }
 }
 
 
-const rentServices = new RentServices();
+const rentsServices = new RentServices();
 
-export default rentServices;
+export default rentsServices;
 
